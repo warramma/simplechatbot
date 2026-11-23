@@ -98,9 +98,12 @@ if prompt:
         config = st.session_state.checkpoint or thread_config
         error = None
         try:
-            os.environ["TAVILY_API_KEY"] = tavily_apiKey
-            tavily_tool = TavilySearch()
-            
+            tools=[]
+            if tavily_apiKey:
+                os.environ["TAVILY_API_KEY"] = tavily_apiKey
+                tools.append(TavilySearch())
+            else:
+                os.environ.pop("TAVILY_API_KEY", None)
             model = init_chat_model(
                 model_name,
                 model_provider=model_provider,
@@ -111,7 +114,7 @@ if prompt:
             )
             agent = create_agent(
                 model=model,
-                tools=[tavily_tool],
+                tools=tools,
                 system_prompt=SYSTEM_PROMPT,
                 checkpointer=st.session_state.saver,
             )
